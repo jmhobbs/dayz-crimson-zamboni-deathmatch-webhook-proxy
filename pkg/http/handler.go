@@ -42,13 +42,23 @@ func NewWebhookHandler(scoreboard Scoreboard, notifier DiscordNotifier) http.Han
 			log.Debug().Msg("End of game detected, posting summary...")
 			longest := scoreboard.GetLongestKill()
 			if longest != nil {
-				summary := fmt.Sprintf("Longest kill: %s killed %s with %s at %dm", longest.Killer, longest.Victim, longest.Weapon, longest.Distance)
-				log.Info().Msg(summary)
-				if err := notifier.PostMessage(summary); err != nil {
+				if err := notifier.PostMessage(fmt.Sprintf("Longest kill: %s killed %s with %s at %dm", longest.Killer, longest.Victim, longest.Weapon, longest.Distance)); err != nil {
 					log.Error().Err(err).Msg("failed to post end of game summary to Discord")
 				}
 			} else {
 				log.Info().Msg("No kills recorded.")
+			}
+			ratios := scoreboard.GetKDRatios()
+			if len(ratios) > 0 {
+				var buf strings.Builder
+				buf.WriteString("K/D Ratios:\n```")
+				for name, ratio := range ratios {
+					buf.WriteString(fmt.Sprintf("%s: %0.1f\n", name, ratio))
+				}
+				buf.WriteString("```")
+				if err := notifier.PostMessage(buf.String()); err != nil {
+					log.Error().Err(err).Msg("failed to post end of game summary to Discord")
+				}
 			}
 			scoreboard.Reset()
 			w.WriteHeader(http.StatusOK)

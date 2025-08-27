@@ -37,3 +37,27 @@ func (s *scoreboard) GetLongestKill() *types.Kill {
 	}
 	return longest
 }
+
+func (s *scoreboard) GetKDRatios() map[string]float64 {
+	kills := make(map[string]float64)
+	deaths := make(map[string]float64)
+	for _, kill := range s.kills {
+		kills[kill.Killer]++
+		deaths[kill.Victim]++
+	}
+	ratios := make(map[string]float64)
+	for name, count := range kills {
+		deathCount := deaths[name]
+		if deathCount == 0 {
+			ratios[name] = count
+		} else {
+			ratios[name] = count / deathCount
+		}
+	}
+	for name := range deaths {
+		if _, ok := kills[name]; !ok {
+			ratios[name] = 0.0
+		}
+	}
+	return ratios
+}

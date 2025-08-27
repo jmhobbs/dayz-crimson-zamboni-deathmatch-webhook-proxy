@@ -39,3 +39,22 @@ func Test_Scoreboard_GetLongestKill(t *testing.T) {
 		assert.Equal(t, expectedLongest, *longest)
 	})
 }
+
+func Test_Scoreboard_GetKDRatios(t *testing.T) {
+	s := scoreboard.New()
+	s.AddKill("Player 1", "Player 2", "M70 Tundra", 50)
+	s.AddKill("Player 1", "Player 2", "M70 Tundra", 50)
+	s.AddKill("Player 2", "Player 1", "M79", 30)
+	s.AddKill("Player 3", "Player 4", "Screwdriver", 30)
+	s.AddKill("Player 3", "Player 1", "Screwdriver", 300)
+	s.AddKill("Player 3", "Player 4", "Screwdriver", 150)
+
+	ratios := s.GetKDRatios()
+
+	assert.Equal(t, map[string]float64{
+		"Player 1": 1.0, // 2:1
+		"Player 2": 0.5, // 1:2
+		"Player 3": 3.0, // 3:0
+		"Player 4": 0.0, // 0:2
+	}, ratios)
+}

@@ -94,6 +94,52 @@ func (_c *MockScoreboard_AddKill_Call) RunAndReturn(run func(killer string, vict
 	return _c
 }
 
+// GetKDRatios provides a mock function for the type MockScoreboard
+func (_mock *MockScoreboard) GetKDRatios() map[string]float64 {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetKDRatios")
+	}
+
+	var r0 map[string]float64
+	if returnFunc, ok := ret.Get(0).(func() map[string]float64); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(map[string]float64)
+		}
+	}
+	return r0
+}
+
+// MockScoreboard_GetKDRatios_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetKDRatios'
+type MockScoreboard_GetKDRatios_Call struct {
+	*mock.Call
+}
+
+// GetKDRatios is a helper method to define mock.On call
+func (_e *MockScoreboard_Expecter) GetKDRatios() *MockScoreboard_GetKDRatios_Call {
+	return &MockScoreboard_GetKDRatios_Call{Call: _e.mock.On("GetKDRatios")}
+}
+
+func (_c *MockScoreboard_GetKDRatios_Call) Run(run func()) *MockScoreboard_GetKDRatios_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockScoreboard_GetKDRatios_Call) Return(stringToFloat64 map[string]float64) *MockScoreboard_GetKDRatios_Call {
+	_c.Call.Return(stringToFloat64)
+	return _c
+}
+
+func (_c *MockScoreboard_GetKDRatios_Call) RunAndReturn(run func() map[string]float64) *MockScoreboard_GetKDRatios_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetLongestKill provides a mock function for the type MockScoreboard
 func (_mock *MockScoreboard) GetLongestKill() *types.Kill {
 	ret := _mock.Called()
