@@ -26,8 +26,10 @@ func (n *notifier) PostMessage(message string) error {
 	payload := discordWebhookPayload{Content: message}
 
 	var buf bytes.Buffer
-	enc := json.NewEncoder(&buf)
-	enc.Encode(payload)
+	err := json.NewEncoder(&buf).Encode(payload)
+	if err != nil {
+		return err
+	}
 
 	req, err := http.NewRequest(http.MethodPost, n.url, &buf)
 	if err != nil {
@@ -36,7 +38,7 @@ func (n *notifier) PostMessage(message string) error {
 
 	req.Header.Set("Content-Type", "application/json")
 
-	http.DefaultClient.Do(req)
+	_, err = http.DefaultClient.Do(req)
 
-	return nil
+	return err
 }
