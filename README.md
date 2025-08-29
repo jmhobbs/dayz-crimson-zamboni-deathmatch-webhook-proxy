@@ -1,3 +1,7 @@
+[![Go Reference](https://pkg.go.dev/badge/github.com/jmhobbs/dayz-crimson-zamboni-deathmatch-webhook-proxy.svg)](https://pkg.go.dev/github.com/jmhobbs/dayz-crimson-zamboni-deathmatch-webhook-proxy)
+[![golangci-lint](https://github.com/jmhobbs/dayz-crimson-zamboni-deathmatch-webhook-proxy/actions/workflows/golangci-lint.yml/badge.svg)](https://github.com/jmhobbs/dayz-crimson-zamboni-deathmatch-webhook-proxy/actions/workflows/golangci-lint.yml)
+[![Test and coverage](https://github.com/jmhobbs/dayz-crimson-zamboni-deathmatch-webhook-proxy/actions/workflows/test.yml/badge.svg)](https://github.com/jmhobbs/dayz-crimson-zamboni-deathmatch-webhook-proxy/actions/workflows/test.yml)
+
 # Crimson Zamboni Deathmatch Webhook Proxy
 
 The [Crimson Zamboni Deathmatch](https://crimsonzamboni.com/deathmatch.html) for DayZ provides a webhook for Discord.
