@@ -1,6 +1,9 @@
 package scoreboard
 
 import (
+	"encoding/json"
+	"io"
+
 	"github.com/jmhobbs/dayz-crimson-zamboni-deathmatch-webhook-proxy/pkg/http"
 	"github.com/jmhobbs/dayz-crimson-zamboni-deathmatch-webhook-proxy/pkg/types"
 )
@@ -13,6 +16,19 @@ type scoreboard struct {
 
 func New() *scoreboard {
 	return &scoreboard{kills: []types.Kill{}}
+}
+
+func NewFromJSON(r io.Reader) (*scoreboard, error) {
+	input := struct {
+		Kills []types.Kill `json:"kills"`
+	}{}
+
+	if err := json.NewDecoder(r).Decode(&input); err != nil {
+		return nil, err
+	}
+	s := New()
+	s.kills = input.Kills
+	return s, nil
 }
 
 func (s *scoreboard) Reset() {

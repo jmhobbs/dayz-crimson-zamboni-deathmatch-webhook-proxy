@@ -1,0 +1,28 @@
+{
+  "kills": [
+    {
+      "killer": "Player1",
+      "victim": "Player2",
+      "weapon": "AK-74",
+      "distance": 45
+    },
+    {
+      "killer": "Player3",
+      "victim": "Player4",
+      "weapon": "M4A1",
+      "distance": 30
+    },
+    {
+      "killer": "Player1",
+      "victim": "Player5",
+      "weapon": "AK-74",
+      "distance": 60
+    },
+    {
+      "killer": "Player2",
+      "victim": "Player3",
+      "weapon": "Pioneer",
+      "distance": 500
+    }
+  ]
+}

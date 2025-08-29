@@ -1,12 +1,13 @@
 package http
 
 import (
+	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
+	"text/template"
 
 	"github.com/rs/zerolog/log"
 )
@@ -17,7 +18,7 @@ type deathmatchPayload struct {
 
 var killMatcher *regexp.Regexp = regexp.MustCompile(`^(.*) killed (.*) using (.*) from ([0-9]+)m$`)
 
-func NewWebhookHandler(scoreboard Scoreboard, notifier DiscordNotifier) http.HandlerFunc {
+func NewWebhookHandler(scoreboard Scoreboard, notifier DiscordNotifier, summary *template.Template) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -34,58 +35,46 @@ func NewWebhookHandler(scoreboard Scoreboard, notifier DiscordNotifier) http.Han
 		// forward the incoming message to Discord
 		if err := notifier.PostMessage(payload.Content); err != nil {
 			log.Error().Err(err).Str("content", payload.Content).Msg("failed to forward message to Discord")
-			// intentionally ignore this error and keep feeding the scoreboard
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			// intentionally continue after this error and keep feeding the scoreboard
 		}
 
-		// Game end, post summary
 		if strings.HasPrefix(payload.Content, "**Leaderboard:**") {
-			log.Debug().Msg("End of game detected, posting summary...")
-			longest := scoreboard.GetLongestKill()
-			if longest != nil {
-				if err := notifier.PostMessage(fmt.Sprintf("Longest kill: %s killed %s with %s at %dm", longest.Killer, longest.Victim, longest.Weapon, longest.Distance)); err != nil {
-					log.Error().Err(err).Msg("failed to post end of game summary to Discord")
-				}
-			} else {
-				log.Info().Msg("No kills recorded.")
-			}
-			ratios := scoreboard.GetKDRatios()
-			if len(ratios) > 0 {
-				var buf strings.Builder
-				buf.WriteString("K/D Ratios:\n```")
-				for name, ratio := range ratios {
-					buf.WriteString(fmt.Sprintf("%s: %0.1f\n", name, ratio))
-				}
-				buf.WriteString("```")
-				if err := notifier.PostMessage(buf.String()); err != nil {
-					log.Error().Err(err).Msg("failed to post end of game summary to Discord")
-				}
-			}
-			scoreboard.Reset()
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		// Is it a kill?
-		matches := killMatcher.FindStringSubmatch(payload.Content)
-		if len(matches) == 5 {
-			killer := matches[1]
-			victim := matches[2]
-			weapon := matches[3]
-			distance := matches[4]
-
-			log.Debug().Msgf("%s killed %s using %s from %sm", killer, victim, weapon, distance)
-
-			distanceInt, err := strconv.Atoi(distance)
-			if err != nil {
-				log.Error().Err(err).Str("distance", distance).Msg("unable to parse distance")
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			// Add to scoreboard
-			scoreboard.AddKill(killer, victim, weapon, distanceInt)
+			handleGameEnd(scoreboard, notifier, summary)
+		} else if matches := killMatcher.FindStringSubmatch(payload.Content); len(matches) == 5 {
+			handleKill(matches[1], matches[2], matches[3], matches[4], scoreboard)
 		}
 
 		w.WriteHeader(http.StatusOK)
 	}
+}
+
+func handleGameEnd(scoreboard Scoreboard, notifier DiscordNotifier, summary *template.Template) {
+	defer scoreboard.Reset()
+	if scoreboard.GetLongestKill() == nil {
+		// do nothing, no kills were recorded
+		return
+	}
+
+	var buf bytes.Buffer
+	if err := summary.Execute(&buf, scoreboard); err != nil {
+		log.Error().Err(err).Msg("failed to execute summary template")
+		return
+	}
+
+	if err := notifier.PostMessage(buf.String()); err != nil {
+		log.Error().Err(err).Msg("failed to post end of game summary to Discord")
+	}
+}
+
+func handleKill(killer, victim, weapon, distance string, scoreboard Scoreboard) {
+	log.Debug().Msgf("%s killed %s using %s from %sm", killer, victim, weapon, distance)
+
+	distanceInt, err := strconv.Atoi(distance)
+	if err != nil {
+		log.Error().Err(err).Str("distance", distance).Msg("unable to parse distance")
+		return
+	}
+
+	scoreboard.AddKill(killer, victim, weapon, distanceInt)
 }
