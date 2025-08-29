@@ -2,6 +2,7 @@ package http_test
 
 import (
 	"bytes"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -62,6 +63,21 @@ func Test_WebhookHandler(t *testing.T) {
 
 		handler(w, req)
 		assert.Equal(t, http.StatusOK, w.Code)
+	})
+
+	t.Run("continues processing if Discord returns an error", func(t *testing.T) {
+		scoreboard := NewMockScoreboard(t)
+		notifier := NewMockDiscordNotifier(t)
+		handler := web.NewWebhookHandler(scoreboard, notifier, summary)
+
+		w := httptest.NewRecorder()
+		req, err := http.NewRequest(http.MethodPost, "/webhook", bytes.NewBufferString(`{"content":"some message here"}`))
+		assert.NoError(t, err)
+
+		notifier.EXPECT().PostMessage("some message here").Return(fmt.Errorf("oh no"))
+
+		handler(w, req)
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
 	})
 
 	t.Run("records kills sent in the payload", func(t *testing.T) {

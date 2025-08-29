@@ -140,6 +140,52 @@ func (_c *MockScoreboard_GetKDRatios_Call) RunAndReturn(run func() map[string]fl
 	return _c
 }
 
+// GetKills provides a mock function for the type MockScoreboard
+func (_mock *MockScoreboard) GetKills() []types.Kill {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetKills")
+	}
+
+	var r0 []types.Kill
+	if returnFunc, ok := ret.Get(0).(func() []types.Kill); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]types.Kill)
+		}
+	}
+	return r0
+}
+
+// MockScoreboard_GetKills_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetKills'
+type MockScoreboard_GetKills_Call struct {
+	*mock.Call
+}
+
+// GetKills is a helper method to define mock.On call
+func (_e *MockScoreboard_Expecter) GetKills() *MockScoreboard_GetKills_Call {
+	return &MockScoreboard_GetKills_Call{Call: _e.mock.On("GetKills")}
+}
+
+func (_c *MockScoreboard_GetKills_Call) Run(run func()) *MockScoreboard_GetKills_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockScoreboard_GetKills_Call) Return(kills []types.Kill) *MockScoreboard_GetKills_Call {
+	_c.Call.Return(kills)
+	return _c
+}
+
+func (_c *MockScoreboard_GetKills_Call) RunAndReturn(run func() []types.Kill) *MockScoreboard_GetKills_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetLongestKill provides a mock function for the type MockScoreboard
 func (_mock *MockScoreboard) GetLongestKill() *types.Kill {
 	ret := _mock.Called()

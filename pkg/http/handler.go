@@ -32,10 +32,11 @@ func NewWebhookHandler(scoreboard Scoreboard, notifier DiscordNotifier, summary 
 			return
 		}
 
+		var forwardingFailed bool
 		// forward the incoming message to Discord
 		if err := notifier.PostMessage(payload.Content); err != nil {
 			log.Error().Err(err).Str("content", payload.Content).Msg("failed to forward message to Discord")
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			forwardingFailed = true
 			// intentionally continue after this error and keep feeding the scoreboard
 		}
 
@@ -45,7 +46,11 @@ func NewWebhookHandler(scoreboard Scoreboard, notifier DiscordNotifier, summary 
 			handleKill(matches[1], matches[2], matches[3], matches[4], scoreboard)
 		}
 
-		w.WriteHeader(http.StatusOK)
+		if forwardingFailed {
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+		} else {
+			w.WriteHeader(http.StatusOK)
+		}
 	}
 }
 

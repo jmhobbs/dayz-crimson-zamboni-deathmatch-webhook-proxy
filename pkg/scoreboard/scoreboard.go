@@ -44,6 +44,10 @@ func (s *scoreboard) AddKill(killer, victim, weapon string, distance int) {
 	})
 }
 
+func (s *scoreboard) GetKills() []types.Kill {
+	return s.kills
+}
+
 func (s *scoreboard) GetLongestKill() *types.Kill {
 	var longest *types.Kill
 	for _, kill := range s.kills {

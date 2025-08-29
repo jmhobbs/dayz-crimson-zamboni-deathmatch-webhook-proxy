@@ -7,6 +7,7 @@ type Scoreboard interface {
 	Reset()
 	GetLongestKill() *types.Kill
 	GetKDRatios() map[string]float64
+	GetKills() []types.Kill
 }
 
 type DiscordNotifier interface {
