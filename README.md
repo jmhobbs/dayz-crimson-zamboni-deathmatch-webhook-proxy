@@ -36,12 +36,13 @@ flowchart TD
 
 Configuration can be done via flags, environment variables, or a config file.
 
-| Flag         | Environment Variable | Config Key   | Description                                | Default |
-|--------------|----------------------|--------------|--------------------------------------------|---------|
-| -config      | CONFIG               | N/A          | Config file to load                        | (none)  |
-| -debug       | DEBUG                | debug        | Log debug info                             | false   |
-| -listen      | LISTEN               | listen       | Interface and port to listen on            | :8080   |
-| -webhook-url | WEBHOOK_URL          | webhook_url  | Discord webhook URL to forward messages to | (none)  |
+| Flag              | Environment Variable | Config Key       | Description                                                           | Default |
+|-------------------|----------------------|------------------|-----------------------------------------------------------------------|---------|
+| -config           | CONFIG               | N/A              | Config file to load                                                   | (none)  |
+| -debug            | DEBUG                | debug            | Log debug info                                                        | false   |
+| -listen           | LISTEN               | listen           | Interface and port to listen on                                       | :8080   |
+| -webhook-url      | WEBHOOK_URL          | webhook-url      | Discord webhook URL to forward messages to                            | (none)  |
+| -summary-template | SUMMARY_TEMPLATE     | summary-template | Template for the summary message sent at the end of a game (optional) | (none)  |
 
 At a minimum, `-webhook-url` must be set, and should be the Discord webhook URL you wish to post messages to.
 
@@ -55,3 +56,13 @@ e.g.
 webhook_url https://discord.com/api/webhooks/...
 lsiten :8081
 ```
+
+### Summary Template
+
+The summary template is a [Go text/template](https://pkg.go.dev/text/template) that is used to create the message sent to Discord at the end of a game.
+
+The `.` object passed to the template is a `Scoreboard` object from `pkg/http/interfaces.go`
+
+The default template is in `cmd/proxy/summary.tmpl`
+
+There is a command provided for testing your templates in `cmd/template-check`
